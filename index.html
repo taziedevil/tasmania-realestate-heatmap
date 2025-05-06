@@ -82,7 +82,18 @@
         });
 
         if (heatLayer) map.removeLayer(heatLayer);
-        heatLayer = L.heatLayer(heatData, { radius: 25, blur: 15, maxZoom: 11 }).addTo(map);
+        heatLayer = L.heatLayer(heatData, {
+      radius: 25,
+      blur: 15,
+      maxZoom: 11,
+      gradient: {
+        0.0: '#0000ff',
+        0.25: '#00ff00',
+        0.5: '#ffff00',
+        0.75: '#ff8000',
+        1.0: '#ff0000'
+      }
+    }).addTo(map);
       });
     }
 
@@ -91,5 +102,37 @@
 
     fetchAndRender();
   </script>
+
+  <div id="legend" style="
+    position: absolute;
+    bottom: 20px;
+    left: 10px;
+    background: white;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 13px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    z-index: 1000;
+  ">
+    <strong>Heatmap Intensity</strong><br>
+    <div style="margin-top: 5px;">
+      <div style="display: flex; align-items: center; margin: 2px 0;">
+        <span style="width: 16px; height: 10px; background:#ff0000; display:inline-block; margin-right:5px;"></span> High
+      </div>
+      <div style="display: flex; align-items: center; margin: 2px 0;">
+        <span style="width: 16px; height: 10px; background:#ff8000; display:inline-block; margin-right:5px;"></span> Hot
+      </div>
+      <div style="display: flex; align-items: center; margin: 2px 0;">
+        <span style="width: 16px; height: 10px; background:#ffff00; display:inline-block; margin-right:5px;"></span> Warm
+      </div>
+      <div style="display: flex; align-items: center; margin: 2px 0;">
+        <span style="width: 16px; height: 10px; background:#00ff00; display:inline-block; margin-right:5px;"></span> Cool
+      </div>
+      <div style="display: flex; align-items: center; margin: 2px 0;">
+        <span style="width: 16px; height: 10px; background:#0000ff; display:inline-block; margin-right:5px;"></span> Low
+      </div>
+    </div>
+  </div>
 </body>
+
 </html>
