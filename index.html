@@ -133,7 +133,12 @@ function updateLegend(metric) {
 
     let heatLayer = null;
 
-    function fetchAndRender() {
+    
+function fetchAndRender() {
+  const metric = document.getElementById('metricSelect').value;
+  const type = document.getElementById('typeSelect').value;
+  updateLegend(metric);
+
   updateLegend(document.getElementById('metricSelect').value);
       const metric = document.getElementById('metricSelect').value;
       const type = document.getElementById('typeSelect').value;
