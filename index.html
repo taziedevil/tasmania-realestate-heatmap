@@ -65,8 +65,35 @@
           const lng = parseFloat(muni.Lng);
           if (!lat || !lng) return;
 
-          let intensity = 0;
-          if (metric === "sales") {
+          
+      let intensity = 0;
+      let raw = 0;
+    
+          
+      if (metric === "sales") {
+        if (type === "house") raw = parseInt(muni.House_Sales);
+        else if (type === "unit") raw = parseInt(muni.Unit_Sales);
+        else if (type === "land") raw = parseInt(muni.Land_Sales);
+      } else if (metric === "price") {
+        if (type === "house") raw = parseFloat(muni.Median_House_Price);
+        else if (type === "unit") raw = parseFloat(muni.Median_Unit_Price);
+        else if (type === "land") raw = parseFloat(muni.Median_Land_Price);
+      }
+
+      // Normalize sales values based on fixed breakpoints
+      if (!isNaN(raw)) {
+        if (metric === "sales") {
+          if (raw >= 800) intensity = 1.0;
+          else if (raw >= 600) intensity = 0.8;
+          else if (raw >= 400) intensity = 0.6;
+          else if (raw >= 200) intensity = 0.4;
+          else if (raw >= 100) intensity = 0.2;
+          else intensity = 0.1;
+        } else {
+          intensity = raw / 1000000; // Normalize price with $1M cap
+        }
+      }
+
             if (type === "house") intensity = parseInt(muni.House_Sales);
             else if (type === "unit") intensity = parseInt(muni.Unit_Sales);
             else if (type === "land") intensity = parseInt(muni.Land_Sales);
@@ -83,17 +110,14 @@
 
         if (heatLayer) map.removeLayer(heatLayer);
         heatLayer = L.heatLayer(heatData, {
-      radius: 25,
-      blur: 15,
-      maxZoom: 11,
+      max: 1,
       gradient: {
         0.0: '#0000ff',
-        0.25: '#00ff00',
-        0.5: '#ffff00',
-        0.75: '#ff8000',
+        0.2: '#00ff00',
+        0.4: '#ffff00',
+        0.6: '#ff8000',
         1.0: '#ff0000'
-      }
-    }).addTo(map);
+      }, radius: 25, blur: 15, maxZoom: 11 }).addTo(map);
       });
     }
 
@@ -114,22 +138,22 @@
     box-shadow: 0 2px 6px rgba(0,0,0,0.3);
     z-index: 1000;
   ">
-    <strong>Heatmap Intensity</strong><br>
+    <strong>Sales Heatmap Scale</strong><br>
     <div style="margin-top: 5px;">
       <div style="display: flex; align-items: center; margin: 2px 0;">
-        <span style="width: 16px; height: 10px; background:#ff0000; display:inline-block; margin-right:5px;"></span> High
+        <span style="width: 16px; height: 10px; background:#0000ff; display:inline-block; margin-right:5px;"></span> 0–99 Sales
       </div>
       <div style="display: flex; align-items: center; margin: 2px 0;">
-        <span style="width: 16px; height: 10px; background:#ff8000; display:inline-block; margin-right:5px;"></span> Hot
+        <span style="width: 16px; height: 10px; background:#00ff00; display:inline-block; margin-right:5px;"></span> 100–199 Sales
       </div>
       <div style="display: flex; align-items: center; margin: 2px 0;">
-        <span style="width: 16px; height: 10px; background:#ffff00; display:inline-block; margin-right:5px;"></span> Warm
+        <span style="width: 16px; height: 10px; background:#ffff00; display:inline-block; margin-right:5px;"></span> 200–399 Sales
       </div>
       <div style="display: flex; align-items: center; margin: 2px 0;">
-        <span style="width: 16px; height: 10px; background:#00ff00; display:inline-block; margin-right:5px;"></span> Cool
+        <span style="width: 16px; height: 10px; background:#ff8000; display:inline-block; margin-right:5px;"></span> 400–599 Sales
       </div>
       <div style="display: flex; align-items: center; margin: 2px 0;">
-        <span style="width: 16px; height: 10px; background:#0000ff; display:inline-block; margin-right:5px;"></span> Low
+        <span style="width: 16px; height: 10px; background:#ff0000; display:inline-block; margin-right:5px;"></span> 600+ Sales
       </div>
     </div>
   </div>
