@@ -1,0 +1,95 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tasmania Property Heatmap</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  <style>
+    html, body, #map { height: 100%; margin: 0; font-family: sans-serif; }
+    .controls {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 1000;
+      background: white;
+      padding: 10px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+    .controls select {
+      margin: 5px 0;
+      width: 150px;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <div class="controls">
+    <label for="metricSelect">Metric:</label><br>
+    <select id="metricSelect">
+      <option value="sales">Sales Volume</option>
+      <option value="price">Median Price</option>
+    </select><br>
+    <label for="typeSelect">Property Type:</label><br>
+    <select id="typeSelect">
+      <option value="house">Houses</option>
+      <option value="unit">Units</option>
+      <option value="land">Land</option>
+    </select>
+  </div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
+  <script>
+    const map = L.map('map').setView([-42.8821, 147.3272], 7);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    let heatLayer = null;
+
+    function fetchAndRender() {
+      const metric = document.getElementById('metricSelect').value;
+      const type = document.getElementById('typeSelect').value;
+
+      const sheetID = '1vbmHTf69XVp827i8al6erUSslZXS7qsTj2RUMfhw2zc';
+      const url = `https://opensheet.elk.sh/${sheetID}/Sheet1`;
+
+      fetch(url).then(r => r.json()).then(data => {
+        const heatData = [];
+
+        data.forEach(muni => {
+          const lat = parseFloat(muni.Lat);
+          const lng = parseFloat(muni.Lng);
+          if (!lat || !lng) return;
+
+          let intensity = 0;
+          if (metric === "sales") {
+            if (type === "house") intensity = parseInt(muni.House_Sales);
+            else if (type === "unit") intensity = parseInt(muni.Unit_Sales);
+            else if (type === "land") intensity = parseInt(muni.Land_Sales);
+          } else if (metric === "price") {
+            if (type === "house") intensity = parseFloat(muni.Median_House_Price);
+            else if (type === "unit") intensity = parseFloat(muni.Median_Unit_Price);
+            else if (type === "land") intensity = parseFloat(muni.Median_Land_Price);
+          }
+
+          if (!isNaN(intensity) && intensity > 0) {
+            heatData.push([lat, lng, intensity]);
+          }
+        });
+
+        if (heatLayer) map.removeLayer(heatLayer);
+        heatLayer = L.heatLayer(heatData, { radius: 25, blur: 15, maxZoom: 11 }).addTo(map);
+      });
+    }
+
+    document.getElementById('metricSelect').addEventListener('change', fetchAndRender);
+    document.getElementById('typeSelect').addEventListener('change', fetchAndRender);
+
+    fetchAndRender();
+  </script>
+</body>
+</html>
