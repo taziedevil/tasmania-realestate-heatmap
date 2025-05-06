@@ -94,17 +94,6 @@
         }
       }
 
-            if (type === "house") intensity = parseInt(muni.House_Sales);
-            else if (type === "unit") intensity = parseInt(muni.Unit_Sales);
-            else if (type === "land") intensity = parseInt(muni.Land_Sales);
-          } else if (metric === "price") {
-            if (type === "house") intensity = parseFloat(muni.Median_House_Price);
-            else if (type === "unit") intensity = parseFloat(muni.Median_Unit_Price);
-            else if (type === "land") intensity = parseFloat(muni.Median_Land_Price);
-          }
-
-          if (!isNaN(intensity) && intensity > 0) {
-            heatData.push([lat, lng, intensity]);
           }
         });
 
