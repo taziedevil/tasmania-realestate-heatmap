@@ -50,7 +50,7 @@
       <option value="land">Land</option>
     </select>
   </div>
-  <div id="legend">
+  <div id="legend" class="legend-box">
     <strong>Sales Heatmap Scale</strong><br>
     <div style="margin-top: 5px;">
       <div style="display: flex; align-items: center; margin: 2px 0;">
@@ -71,8 +71,60 @@
     </div>
   </div>
 
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js">
+function updateLegend(metric) {
+  const legend = document.getElementById("legend");
+  if (metric === "sales") {
+    legend.innerHTML = `
+      <strong>Sales Heatmap Scale</strong><br>
+      <div style="margin-top: 5px;">
+        <div style="display: flex; align-items: center;"><span style="width:16px;height:10px;background:#0000ff;margin-right:5px;display:inline-block;"></span> 0–99 Sales</div>
+        <div style="display: flex; align-items: center;"><span style="width:16px;height:10px;background:#00ff00;margin-right:5px;display:inline-block;"></span> 100–199 Sales</div>
+        <div style="display: flex; align-items: center;"><span style="width:16px;height:10px;background:#ffff00;margin-right:5px;display:inline-block;"></span> 200–399 Sales</div>
+        <div style="display: flex; align-items: center;"><span style="width:16px;height:10px;background:#ff8000;margin-right:5px;display:inline-block;"></span> 400–599 Sales</div>
+        <div style="display: flex; align-items: center;"><span style="width:16px;height:10px;background:#ff0000;margin-right:5px;display:inline-block;"></span> 600+ Sales</div>
+      </div>`;
+  } else {
+    legend.innerHTML = `
+      <strong>Price Heatmap Scale</strong><br>
+      <div style="margin-top: 5px;">
+        <div style="display: flex; align-items: center;"><span style="width:16px;height:10px;background:#0000ff;margin-right:5px;display:inline-block;"></span> &lt;$300K</div>
+        <div style="display: flex; align-items: center;"><span style="width:16px;height:10px;background:#00ff00;margin-right:5px;display:inline-block;"></span> $300K–499K</div>
+        <div style="display: flex; align-items: center;"><span style="width:16px;height:10px;background:#ffff00;margin-right:5px;display:inline-block;"></span> $500K–699K</div>
+        <div style="display: flex; align-items: center;"><span style="width:16px;height:10px;background:#ff8000;margin-right:5px;display:inline-block;"></span> $700K–899K</div>
+        <div style="display: flex; align-items: center;"><span style="width:16px;height:10px;background:#ff0000;margin-right:5px;display:inline-block;"></span> $900K+</div>
+      </div>`;
+  }
+}
+</script>
+
+  <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js">
+function updateLegend(metric) {
+  const legend = document.getElementById("legend");
+  if (metric === "sales") {
+    legend.innerHTML = `
+      <strong>Sales Heatmap Scale</strong><br>
+      <div style="margin-top: 5px;">
+        <div style="display: flex; align-items: center;"><span style="width:16px;height:10px;background:#0000ff;margin-right:5px;display:inline-block;"></span> 0–99 Sales</div>
+        <div style="display: flex; align-items: center;"><span style="width:16px;height:10px;background:#00ff00;margin-right:5px;display:inline-block;"></span> 100–199 Sales</div>
+        <div style="display: flex; align-items: center;"><span style="width:16px;height:10px;background:#ffff00;margin-right:5px;display:inline-block;"></span> 200–399 Sales</div>
+        <div style="display: flex; align-items: center;"><span style="width:16px;height:10px;background:#ff8000;margin-right:5px;display:inline-block;"></span> 400–599 Sales</div>
+        <div style="display: flex; align-items: center;"><span style="width:16px;height:10px;background:#ff0000;margin-right:5px;display:inline-block;"></span> 600+ Sales</div>
+      </div>`;
+  } else {
+    legend.innerHTML = `
+      <strong>Price Heatmap Scale</strong><br>
+      <div style="margin-top: 5px;">
+        <div style="display: flex; align-items: center;"><span style="width:16px;height:10px;background:#0000ff;margin-right:5px;display:inline-block;"></span> &lt;$300K</div>
+        <div style="display: flex; align-items: center;"><span style="width:16px;height:10px;background:#00ff00;margin-right:5px;display:inline-block;"></span> $300K–499K</div>
+        <div style="display: flex; align-items: center;"><span style="width:16px;height:10px;background:#ffff00;margin-right:5px;display:inline-block;"></span> $500K–699K</div>
+        <div style="display: flex; align-items: center;"><span style="width:16px;height:10px;background:#ff8000;margin-right:5px;display:inline-block;"></span> $700K–899K</div>
+        <div style="display: flex; align-items: center;"><span style="width:16px;height:10px;background:#ff0000;margin-right:5px;display:inline-block;"></span> $900K+</div>
+      </div>`;
+  }
+}
+</script>
+
   <script>
     const map = L.map('map').setView([-42.8821, 147.3272], 7);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -82,6 +134,7 @@
     let heatLayer = null;
 
     function fetchAndRender() {
+  updateLegend(document.getElementById('metricSelect').value);
       const metric = document.getElementById('metricSelect').value;
       const type = document.getElementById('typeSelect').value;
       const sheetID = '1vbmHTf69XVp827i8al6erUSslZXS7qsTj2RUMfhw2zc';
@@ -132,19 +185,18 @@
           });
 
           if (heatLayer) map.removeLayer(heatLayer);
-         heatLayer = L.heatLayer(heatData, {
-  radius: 40,           // wider reach to show spread
-  blur: 20,             // softer blending
-  max: 1,
-  minOpacity: 0.4,      // ensures low intensity is still visible
-  gradient: {
-    0.0: '#0000ff',     // Blue (0–99)
-    0.2: '#00ff00',     // Green (100–199)
-    0.4: '#ffff00',     // Yellow (200–399)
-    0.6: '#ff8000',     // Orange (400–599)
-    1.0: '#ff0000'      // Red (600+)
-  }
-}).addTo(map);
+          heatLayer = L.heatLayer(heatData, {
+            radius: 25,
+            blur: 15,
+            max: 1,
+            gradient: {
+              0.0: '#0000ff',
+              0.2: '#00ff00',
+              0.4: '#ffff00',
+              0.6: '#ff8000',
+              1.0: '#ff0000'
+            }
+          }).addTo(map);
         });
     }
 
@@ -152,6 +204,32 @@
     document.getElementById('typeSelect').addEventListener('change', fetchAndRender);
 
     fetchAndRender();
-  </script>
+  
+function updateLegend(metric) {
+  const legend = document.getElementById("legend");
+  if (metric === "sales") {
+    legend.innerHTML = `
+      <strong>Sales Heatmap Scale</strong><br>
+      <div style="margin-top: 5px;">
+        <div style="display: flex; align-items: center;"><span style="width:16px;height:10px;background:#0000ff;margin-right:5px;display:inline-block;"></span> 0–99 Sales</div>
+        <div style="display: flex; align-items: center;"><span style="width:16px;height:10px;background:#00ff00;margin-right:5px;display:inline-block;"></span> 100–199 Sales</div>
+        <div style="display: flex; align-items: center;"><span style="width:16px;height:10px;background:#ffff00;margin-right:5px;display:inline-block;"></span> 200–399 Sales</div>
+        <div style="display: flex; align-items: center;"><span style="width:16px;height:10px;background:#ff8000;margin-right:5px;display:inline-block;"></span> 400–599 Sales</div>
+        <div style="display: flex; align-items: center;"><span style="width:16px;height:10px;background:#ff0000;margin-right:5px;display:inline-block;"></span> 600+ Sales</div>
+      </div>`;
+  } else {
+    legend.innerHTML = `
+      <strong>Price Heatmap Scale</strong><br>
+      <div style="margin-top: 5px;">
+        <div style="display: flex; align-items: center;"><span style="width:16px;height:10px;background:#0000ff;margin-right:5px;display:inline-block;"></span> &lt;$300K</div>
+        <div style="display: flex; align-items: center;"><span style="width:16px;height:10px;background:#00ff00;margin-right:5px;display:inline-block;"></span> $300K–499K</div>
+        <div style="display: flex; align-items: center;"><span style="width:16px;height:10px;background:#ffff00;margin-right:5px;display:inline-block;"></span> $500K–699K</div>
+        <div style="display: flex; align-items: center;"><span style="width:16px;height:10px;background:#ff8000;margin-right:5px;display:inline-block;"></span> $700K–899K</div>
+        <div style="display: flex; align-items: center;"><span style="width:16px;height:10px;background:#ff0000;margin-right:5px;display:inline-block;"></span> $900K+</div>
+      </div>`;
+  }
+}
+</script>
+
 </body>
 </html>
