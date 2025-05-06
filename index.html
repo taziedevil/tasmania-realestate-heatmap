@@ -132,18 +132,19 @@
           });
 
           if (heatLayer) map.removeLayer(heatLayer);
-          heatLayer = L.heatLayer(heatData, {
-            radius: 25,
-            blur: 15,
-            max: 1,
-            gradient: {
-              0.0: '#0000ff',
-              0.2: '#00ff00',
-              0.4: '#ffff00',
-              0.6: '#ff8000',
-              1.0: '#ff0000'
-            }
-          }).addTo(map);
+         heatLayer = L.heatLayer(heatData, {
+  radius: 40,           // wider reach to show spread
+  blur: 20,             // softer blending
+  max: 1,
+  minOpacity: 0.4,      // ensures low intensity is still visible
+  gradient: {
+    0.0: '#0000ff',     // Blue (0–99)
+    0.2: '#00ff00',     // Green (100–199)
+    0.4: '#ffff00',     // Yellow (200–399)
+    0.6: '#ff8000',     // Orange (400–599)
+    1.0: '#ff0000'      // Red (600+)
+  }
+}).addTo(map);
         });
     }
 
